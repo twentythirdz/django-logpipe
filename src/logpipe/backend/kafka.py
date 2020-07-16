@@ -124,6 +124,5 @@ class Producer(object):
             'bootstrap_servers': settings.get('KAFKA_BOOTSTRAP_SERVERS'),
             'retries': settings.get('KAFKA_MAX_SEND_RETRIES', 0)
         }
-        kwargs.update({settings.get('KAFKA_PRODUCER_KWARGS', {}),
-        })
+        kwargs.update(settings.get('KAFKA_PRODUCER_KWARGS', {}))
         return kwargs

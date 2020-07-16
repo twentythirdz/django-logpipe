@@ -39,6 +39,6 @@ class Producer(object):
         serialized_data = render(renderer, body)
 
         # Send the message data into the backend
-        record_metadata = self.client.send(self.topic_name, key=key, value=json.dumps(json.loads(serialized_data)).encode('utf-8'))
+        record_metadata = self.client.send(self.topic_name, key=key, value=json.dumps(json.loads(serialized_data)['message']).encode('utf-8'))
         logger.debug('Sent message with type "%s", key "%s" to topic "%s"' % (message_type, key, self.topic_name))
         return record_metadata
