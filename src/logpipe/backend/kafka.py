@@ -124,10 +124,6 @@ class Producer(object):
             'bootstrap_servers': settings.get('KAFKA_BOOTSTRAP_SERVERS'),
             'retries': settings.get('KAFKA_MAX_SEND_RETRIES', 0)
         }
-        kwargs.update({
-            'security_protocol': settings.get('KAFKA_SECURITY_PROTOCOL', {}),
-            'sasl_mechanism': settings.get('KAFKA_SASL_MECHANISM', {}),
-            'sasl_plain_username': settings.get('KAFKA_SASL_PLAIN_USERNAME', {}),
-            'sasl_plain_password': settings.get('KAFKA_SASL_PLAIN_PASSWORD', {}),
+        kwargs.update({settings.get('KAFKA_PRODUCER_KWARGS', {}),
         })
         return kwargs
