@@ -5,9 +5,7 @@ from . import RecordMetadata, Record, get_offset_backend
 import kafka
 import logging
 
-
 logger = logging.getLogger(__name__)
-
 
 
 class ModelOffsetStore(object):
@@ -21,7 +19,6 @@ class ModelOffsetStore(object):
         obj.offset = message.offset + 1
         obj.save()
 
-
     def seek(self, consumer, topic, partition):
         KafkaOffset = apps.get_model(app_label='logpipe', model_name='KafkaOffset')
         tp = kafka.TopicPartition(topic=topic, partition=partition)
@@ -34,7 +31,6 @@ class ModelOffsetStore(object):
             consumer.client.seek_to_beginning(tp)
 
 
-
 class KafkaOffsetStore(object):
     def commit(self, consumer, message):
         logger.debug('Commit offset "%s" for topic "%s", partition "%s" to %s' % (
@@ -45,14 +41,12 @@ class KafkaOffsetStore(object):
         pass
 
 
-
 class Consumer(object):
     _client = None
 
     def __init__(self, topic_name, **kwargs):
         self.topic_name = topic_name
         self.client_kwargs = kwargs
-
 
     @property
     def client(self):
@@ -67,10 +61,8 @@ class Consumer(object):
                 self._client.committed(tp)
         return self._client
 
-
     def __iter__(self):
         return self
-
 
     def __next__(self):
         r = next(self.client)
@@ -83,7 +75,6 @@ class Consumer(object):
             value=r.value)
         return record
 
-
     def _get_topic_partitions(self):
         p = []
         partitions = self.client.partitions_for_topic(self.topic_name)
@@ -93,7 +84,6 @@ class Consumer(object):
             tp = kafka.TopicPartition(self.topic_name, partition=partition)
             p.append(tp)
         return p
-
 
     def _get_client_config(self):
         kwargs = {
@@ -109,10 +99,8 @@ class Consumer(object):
         return kwargs
 
 
-
 class Producer(object):
     _client = None
-
 
     @property
     def client(self):
@@ -120,7 +108,6 @@ class Producer(object):
             kwargs = self._get_client_config()
             self._client = kafka.KafkaProducer(**kwargs)
         return self._client
-
 
     def send(self, topic_name, key, value):
         key = key.encode()
@@ -132,11 +119,15 @@ class Producer(object):
             partition=metadata.partition,
             offset=metadata.offset)
 
-
     def _get_client_config(self):
-        servers = settings.get('KAFKA_BOOTSTRAP_SERVERS')
-        retries = settings.get('KAFKA_MAX_SEND_RETRIES', 0)
-        return {
-            'bootstrap_servers': servers,
-            'retries': retries,
+        kwargs = {
+            'bootstrap_servers': settings.get('KAFKA_BOOTSTRAP_SERVERS'),
+            'retries': settings.get('KAFKA_MAX_SEND_RETRIES', 0)
         }
+        kwargs.update({
+            'security_protocol': settings.get('KAFKA_SECURITY_PROTOCOL', {}),
+            'sasl_mechanism': settings.get('KAFKA_SASL_MECHANISM', {}),
+            'sasl_plain_username': settings.get('KAFKA_SASL_PLAIN_USERNAME', {}),
+            'sasl_plain_password': settings.get('KAFKA_SASL_PLAIN_PASSWORD', {}),
+        })
+        return kwargs
