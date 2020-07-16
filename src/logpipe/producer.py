@@ -3,7 +3,7 @@ from .constants import FORMAT_JSON
 from .format import render
 from . import settings
 import logging
-
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,6 @@ class Producer(object):
         self.client = get_producer_backend()
         self.topic_name = topic_name
         self.serializer_class = serializer_class
-
 
     def send(self, instance, renderer=None):
         # Instantiate the serialize
@@ -34,13 +33,12 @@ class Producer(object):
         # Render everything into a string
         renderer = settings.get('DEFAULT_FORMAT', FORMAT_JSON)
         body = {
-            'type': message_type,
             'version': version,
             'message': ser.data,
         }
         serialized_data = render(renderer, body)
 
         # Send the message data into the backend
-        record_metadata = self.client.send(self.topic_name, key=key, value=serialized_data)
+        record_metadata = self.client.send(self.topic_name, key=key, value=json.dumps(json.loads(serialized_data)).encode('utf-8'))
         logger.debug('Sent message with type "%s", key "%s" to topic "%s"' % (message_type, key, self.topic_name))
         return record_metadata
