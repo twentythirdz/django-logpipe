@@ -30,7 +30,7 @@ def render(code, data):
     if code not in _formats:
         raise UnknownFormatError('Could not find renderer for format %s' % code.decode())
     body = _formats[code]['renderer'].render(data)
-    return code + _delim + body
+    return body
 
 
 def parse(data):
