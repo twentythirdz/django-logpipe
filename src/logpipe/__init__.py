@@ -3,7 +3,7 @@ from .constants import FORMAT_JSON, FORMAT_MSGPACK, FORMAT_PICKLE
 from .formats.json import JSONRenderer, JSONParser
 from .formats.msgpack import MsgPackRenderer, MsgPackParser
 from .formats.pickle import PickleRenderer, PickleParser
-from .producer import Producer
+from .producer import ConfluentProducer, BasicProducer
 from .consumer import Consumer, MultiConsumer
 from .registry import register_consumer
 from . import format, settings
@@ -32,7 +32,8 @@ __all__ = [
     'FORMAT_JSON',
     'FORMAT_MSGPACK',
     'FORMAT_PICKLE',
-    'Producer',
+    'ConfluentProducer',
+    'BasicProducer',
     'Consumer',
     'MultiConsumer',
     'register_consumer',
